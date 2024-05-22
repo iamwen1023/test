@@ -1,60 +1,32 @@
 import React from "react";
 
-import {
-  Button,
-  Card,
-  CardHeader,
-  CardBody,
-  FormGroup,
-  Form,
-  Input,
-  InputGroupAddon,
-  InputGroupText,
-  InputGroup,
-  Container,
-  Row,
-  Col,
-} from "reactstrap";
-
 import { useContext,  useState } from 'react';
 import { UserContext } from '../context/UserContext.js';
 import { Navigate, useNavigate } from "react-router-dom";
 import axios from "axios";
+import CryptoJS from 'crypto-js';
+const server_api = process.env.REACT_APP_API_BASE_URL;
 
 const Login = () =>{
-
-  const { handleLogin } = useContext(UserContext);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
-
-  const [user, setUser] = useState({});
-  const [credentialsErros, setCredentialsError] = useState(null);
-  const [rememberMe, setRememberMe] = useState(false);
-
+  const { handleLogin } = useContext(UserContext);
   const [inputs, setInputs] = useState({
     email: "john@example.com",
     password: "securepassword",
   });
-
-  const [errors, setErrors] = useState({
-    emailError: false,
-    passwordError: false,
-  });
-
+  const [user, setUser] = useState({});
   const addUserHandler = (newUser) => setUser(newUser);
-
-  const handleSetRememberMe = () => setRememberMe(!rememberMe);
-
   const changeHandler = (e) => {
-    setInputs({
-      ...inputs,
-      [e.target.name]: e.target.value,
-    });
+      setInputs({
+        ...inputs,
+        [e.target.name]: e.target.value,
+      });
   };
 
-  const submitHandler = async (e) => {
+  const submitLogin = async (e) => {
     e.preventDefault();
-    console.log("here");
-    const mailFormat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+    // const encryptedPassword = CryptoJS.AES.encrypt(inputs.password, 'secret-key').toString();
     const newUser = { email: inputs.email, password: inputs.password };
     addUserHandler(newUser);
     const mydata = {
@@ -64,90 +36,58 @@ const Login = () =>{
       }
     }
     try {
-      const loginResponse = await axios.post('/login', mydata,{
+      
+      axios.post('http://localhost:8000/api/login', mydata,{
         headers: {
           "Content-Type": "application/vnd.api+json", "Accept": "application/vnd.api+json", 'Access-Control-Allow-Credentials': true },
+      })
+      .then((response) => {
+        console.log(response);
+        if (response.status === 200) {
+          setError('');
+          alert('Login successful!');
+          const token = response.data.token; 
+          localStorage.setItem('authToken', token);
+          handleLogin();
+          navigate("/loading");
+          // Add your successful login logic here
+        } else {
+          setError(response.message || 'Invalid email or password.');
+        }
+        
       });
-      // const response = await AuthService.login(myData);
-      console.log(loginResponse);
-      // localStorage.setItem("token", response.access_token, response.refresh_token);
-      handleLogin();
-      navigate("/landing");
-      // authContext.login(response.access_token, response.refresh_token);
-    } catch (res) {
-      console.log(res);
+    } catch (error) {
+      setError('An error occurred. Please try again.');
     }
-
-    return () => {
-      setInputs({
-        email: "",
-        password: "",
-      });
-
-      setErrors({
-        emailError: false,
-        passwordError: false,
-      });
-    };
   };
-
     return (
-      <>
-          <section className="section section-shaped section-lg">
-            <div className="shape shape-style-1 bg-gradient-default">
-              <span />
-              <span />
-              <span />
-              <span />
-              <span />
-              <span />
-              <span />
-              <span />
-            </div>
-            <Container className="pt-lg-7">
-              <Row className="justify-content-center">
-                <Col lg="5">
-                  <Card className="bg-secondary shadow border-0">
-                    <CardBody className="px-lg-5 py-lg-5">
-                      <Form role="form">
-                        <FormGroup className="mb-3">
-                          <InputGroup className="input-group-alternative">
-                            <InputGroupAddon addonType="prepend">
-                              <InputGroupText>
-                                <i className="ni ni-email-83" />
-                              </InputGroupText>
-                            </InputGroupAddon>
-                            <Input placeholder="Email" type="email" label="Email" value={inputs.email} name="email" onChange={changeHandler}  />
-                          </InputGroup>
-                        </FormGroup>
-                        <FormGroup>
-                          <InputGroup className="input-group-alternative">
-                            <InputGroupAddon addonType="prepend">
-                              <InputGroupText>
-                                <i className="ni ni-lock-circle-open" />
-                              </InputGroupText>
-                            </InputGroupAddon>
-                            <Input
-                              placeholder="Password"
-                              type="password"
-                              autoComplete="off"
-                              label="Password"
-                              name="password"
-                              value={inputs.password}
-                              onChange={changeHandler}
-                    
-                            />
-                          </InputGroup>
-                        </FormGroup>
-  
-                      </Form>
-                    </CardBody>
-                  </Card>
-                </Col>
-              </Row>
-            </Container>
-          </section>
-      </>
+      <div className="App">
+      <header className="App-header">
+        <h1>Login</h1>
+        <form onSubmit={submitLogin}>
+          <div>
+            <label>Email:</label>
+            <input
+              type="email"
+              value={inputs.email}
+              onChange={changeHandler}
+              required
+            />
+          </div>
+          <div>
+            <label>Password:</label>
+            <input
+              type="password"
+              value={inputs.password}
+              onChange={changeHandler}
+              required
+            />
+          </div>
+          {error && <div style={{ color: 'red' }}>{error}</div>}
+          <button type="submit">Login</button>
+        </form>
+      </header>
+    </div>
     );
 }
 

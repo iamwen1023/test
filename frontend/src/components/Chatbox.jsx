@@ -76,8 +76,8 @@ const Chatbot = () => {
         messages={messages}
         setCurrentMessageIndex={setCurrentMessageIndex}
       />
-    <div class="container_right">
-      <div class="conversation">
+    <div className="container_right">
+      <div classNameName="conversation">
     <Conversation
       messages={currentMessageIndex !== null ? messages.slice(0, currentMessageIndex + 1) : messages}
     />

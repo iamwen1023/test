@@ -3,33 +3,9 @@ import { Link } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "./chat.css";
 
-// import './Header.css'; // Optional for custom styling
 
 function Header() {
   return (
-    // <header className="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
-    //   <Link to="/" className="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-body-emphasis text-decoration-none">
-    //     <span className="fs-4">My App</span>
-    //   </Link>
-
-    //   <ul className="nav nav-pills">
-    //     <li className="nav-item">
-    //       <Link to="/" className="nav-link active" aria-current="page">
-    //         Home
-    //       </Link>
-    //     </li>
-    //     <li className="nav-item">
-    //       <Link to="/rugby" className="nav-link">
-    //         Rugby
-    //       </Link>
-    //     </li>
-    //     <li className="nav-item">
-    //       <Link to="/foot" className="nav-link">
-    //         Foot
-    //       </Link>
-    //     </li>
-    //   </ul>
-    // </header>
     <main>
     <div class="container">
     <header class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
@@ -58,7 +34,7 @@ function Header() {
        </ul>
 
       <div class="col-md-3 text-end">
-        <button type="button" class="btn btn-outline-primary me-2">Login</button>
+      <Link to="/login"><button type="button" class="btn btn-outline-primary me-2">Login</button></Link>
         <button type="button" class="btn btn-primary">Sign-up</button>
       </div>
     </header>
