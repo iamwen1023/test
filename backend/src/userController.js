@@ -1,4 +1,7 @@
+import e from 'express';
 import prisma from './prisma.js';
+import bcrypt from "bcrypt";
+import jwt from 'jsonwebtoken';
 
 // Get all users
 export const getAllUsers = async (req, res) => {
@@ -16,6 +19,7 @@ export const getAllTasks = async (req, res) => {
     res.json(tasks);
     console.log(res);
   } catch (error) {
+    console.log(error)
     res.status(500).json({ error: "Failed to fetch users" });
   }
 };
@@ -59,5 +63,46 @@ export const deleteUser = async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: "Failed to delete user" });
   }
+};
+
+// Login a user
+
+export const loginUser = async (req, res, next) => {
+  // console.log(JSON.stringify(req.body));
+  const { email, password } = req.body.data.attributes;
+  try {
+    let foundUser = await prisma.user.findUnique({  where: { email } });
+    if (foundUser == null) {
+      return res.status(200).json({
+        errors: [{ detail: "Credentials don't match any existing users" }],
+      });
+    } else {
+      // const validPassword = await bcrypt.compare(password, foundUser.password);
+      const validPassword = (password === foundUser.password);
+      console.log(validPassword);
+      if (validPassword) {
+      // Generate JWT token
+        const token = jwt.sign(
+          { id: foundUser.id, email: foundUser.email },
+          "token",
+          {expiresIn: "24h",}
+        );
+        return res.status(200).json({
+          token_type: "Bearer",
+          expires_in: "24h",
+          access_token: token,
+          refresh_token: token,
+        // return res.status(200).send('hello');
+      });
+      } else {
+        return res.status(400).json({
+          errors: [{ detail: "Invalid password" }],
+        });
+      }
+    }
+  } catch (error) {
+    res.status(500).json({ error: "Failed to login user" });
+  }
+  
 };
 

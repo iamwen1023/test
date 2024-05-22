@@ -24,7 +24,6 @@ model User {
   id            Int      @id @default(autoincrement())
   name          String
   email         String   @unique
-  emailVerified DateTime?
   password      String
   profileImage  String?
   createdAt     DateTime @default(now())

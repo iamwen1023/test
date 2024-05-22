@@ -8,10 +8,15 @@ import prisma from "./prisma.js";
 dotenv.config();
 
 const app = express();
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 8000;
 
-app.use(cors());
-app.use(bodyParser.json());
+app.use(cors({
+    origin: 'http://localhost:3000', // Replace with your frontend's URL
+    credentials: true // Allow credentials (cookies, authorization headers, etc.)
+  }));
+app.use(bodyParser.json({ type: "application/vnd.api+json", strict: false }));
+// Configure body parsing for JSON requests
+
 
 app.use("/api", router);
 
